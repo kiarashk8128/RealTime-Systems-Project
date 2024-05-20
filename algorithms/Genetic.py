@@ -5,9 +5,8 @@ import random
 
 
 class GeneticAlgorithm:
-    def __init__(self, file_path, population_size=100, generations=1000, mutation_rate=0.01):
-        self.jobs_df = pd.read_csv(file_path)
-        self.jobs = self.jobs_df.values.tolist()
+    def __init__(self, jobs, population_size=100, generations=1000, mutation_rate=0.01):
+        self.jobs = jobs
         self.num_machines = len(self.jobs_df.columns) - 1
         self.population_size = population_size
         self.generations = generations

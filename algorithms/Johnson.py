@@ -4,10 +4,9 @@ import matplotlib.pyplot as plt
 import random
 
 class JohnsonAlgorithm:
-    def __init__(self, file_path):
-        self.jobs_df = pd.read_csv(file_path)
-        self.jobs = self.jobs_df.values.tolist()
-        self.num_machines = len(self.jobs_df.columns) - 1
+    def __init__(self, jobs):
+        self.jobs = jobs
+        self.num_machines = len(self.jobs[0])
     
     def johnsons_algorithm(self):
         if self.num_machines == 2:

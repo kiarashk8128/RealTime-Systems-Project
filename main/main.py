@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
-import Genetic
-import Johnson
+import algorithms.Genetic
+import algorithms.Johnson
 import pandas as pd
 import numpy as np
 import random
@@ -22,7 +22,10 @@ generate_task_samples(num_jobs=20, num_machines=5)
 string_path = "data.csv"
 
 def main():
-
+# m constant , n variable for avarage delay
+# n constant , m variable for avarage waiting time
+# m constant , n variable for average delay
+# m constant , n variable for average waition time
     pass
 
 
