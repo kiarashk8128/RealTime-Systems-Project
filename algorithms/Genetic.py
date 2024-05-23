@@ -2,9 +2,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import random
+import scheduler
 
-
-class GeneticAlgorithm:
+class GeneticAlgorithm(scheduler.Scheduler):
     def __init__(self, jobs, population_size=100, generations=1000, mutation_rate=0.01):
         self.jobs = jobs
         self.num_machines = len(self.jobs_df.columns) - 1
@@ -86,44 +86,35 @@ class GeneticAlgorithm:
         return best_solution
 
 # charts
-    def generate_charts(self):
-        delays = []
-        waiting_times = []
-        n_values = range(5, 30, 5)
+    # def generate_charts(self):
+    #     delays = []
+    #     waiting_times = []
+    #     n_values = range(5, 30, 5)
         
-        for n in n_values:
-            sample_jobs = self.jobs[:n]
-            best_sequence = self.run()
-            _, end_times = self.calculate_makespan(best_sequence)
+    #     for n in n_values:
+    #         sample_jobs = self.jobs[:n]
+    #         best_sequence = self.run()
+    #         _, end_times = self.calculate_makespan(best_sequence)
             
-            avg_delay = self.calculate_average_delay(end_times, best_sequence)
-            avg_waiting_time = self.calculate_average_waiting_time(end_times)
+    #         avg_delay = self.calculate_average_delay(end_times, best_sequence)
+    #         avg_waiting_time = self.calculate_average_waiting_time(end_times)
             
-            delays.append(avg_delay)
-            waiting_times.append(avg_waiting_time)
+    #         delays.append(avg_delay)
+    #         waiting_times.append(avg_waiting_time)
         
-        self.plot_chart(n_values, delays, "Average Delay with varying n", "Number of Jobs (n)", "Average Delay")
-        self.plot_chart(n_values, waiting_times, "Average Waiting Time with varying n", "Number of Jobs (n)", "Average Waiting Time")
+    #     self.plot_chart(n_values, delays, "Average Delay with varying n", "Number of Jobs (n)", "Average Delay")
+    #     self.plot_chart(n_values, waiting_times, "Average Waiting Time with varying n", "Number of Jobs (n)", "Average Waiting Time")
     
-    def calculate_average_delay(self, end_times, jobs):
-        total_delay = 0
-        for i, job in enumerate(jobs):
-            total_delay += end_times[i][-1] - sum(job[1:self.num_machines+1])
-        return total_delay / len(jobs)
 
-    def calculate_average_waiting_time(self, end_times):
-        waiting_times = end_times[:, :-1] - end_times[:, 1:]
-        return np.mean(waiting_times)
-
-    def plot_chart(self, x_values, y_values, title, x_label, y_label):
-        plt.figure(figsize=(10, 6))
-        plt.plot(x_values, y_values, marker='o')
-        plt.title(title)
-        plt.xlabel(x_label)
-        plt.ylabel(y_label)
-        plt.grid(True)
-        plt.show()
+    # def plot_chart(self, x_values, y_values, title, x_label, y_label):
+    #     plt.figure(figsize=(10, 6))
+    #     plt.plot(x_values, y_values, marker='o')
+    #     plt.title(title)
+    #     plt.xlabel(x_label)
+    #     plt.ylabel(y_label)
+    #     plt.grid(True)
+    #     plt.show()
 
 # Example usage
-genetic = GeneticAlgorithm('task_samples.csv')
-genetic.generate_charts()
+# genetic = GeneticAlgorithm('task_samples.csv')
+# genetic.generate_charts()

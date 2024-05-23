@@ -2,8 +2,8 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import random
-
-class JohnsonAlgorithm:
+import scheduler
+class JohnsonAlgorithm(scheduler.Scheduler):
     def __init__(self, jobs):
         self.jobs = jobs
         self.num_machines = len(self.jobs[0])
@@ -40,60 +40,60 @@ class JohnsonAlgorithm:
         
         return ordered_jobs
 
-    def calculate_makespan(self, jobs):
-        end_times = np.zeros((len(jobs), self.num_machines))
+    # def calculate_makespan(self, jobs):
+    #     end_times = np.zeros((len(jobs), self.num_machines))
         
-        for i, job in enumerate(jobs):
-            for j in range(1, self.num_machines + 1):
-                if i == 0 and j == 1:
-                    end_times[i][j-1] = job[j]
-                elif i == 0:
-                    end_times[i][j-1] = end_times[i][j-2] + job[j]
-                elif j == 1:
-                    end_times[i][j-1] = end_times[i-1][j-1] + job[j]
-                else:
-                    end_times[i][j-1] = max(end_times[i-1][j-1], end_times[i][j-2]) + job[j]
+    #     for i, job in enumerate(jobs):
+    #         for j in range(1, self.num_machines + 1):
+    #             if i == 0 and j == 1:
+    #                 end_times[i][j-1] = job[j]
+    #             elif i == 0:
+    #                 end_times[i][j-1] = end_times[i][j-2] + job[j]
+    #             elif j == 1:
+    #                 end_times[i][j-1] = end_times[i-1][j-1] + job[j]
+    #             else:
+    #                 end_times[i][j-1] = max(end_times[i-1][j-1], end_times[i][j-2]) + job[j]
         
-        return end_times[-1][-1], end_times
+    #     return end_times[-1][-1], end_times
 
-    def calculate_average_delay(self, end_times, jobs):
-        total_delay = 0
-        for i, job in enumerate(jobs):
-            total_delay += end_times[i][-1] - sum(job[1:self.num_machines+1])
-        return total_delay / len(jobs)
+    # def calculate_average_delay(self, end_times, jobs):
+    #     total_delay = 0
+    #     for i, job in enumerate(jobs):
+    #         total_delay += end_times[i][-1] - sum(job[1:self.num_machines+1])
+    #     return total_delay / len(jobs)
 
-    def calculate_average_waiting_time(self, end_times):
-        waiting_times = end_times[:, :-1] - end_times[:, 1:]
-        return np.mean(waiting_times)
+    # def calculate_average_waiting_time(self, end_times):
+    #     waiting_times = end_times[:, :-1] - end_times[:, 1:]
+    #     return np.mean(waiting_times)
 
-    def plot_chart(self, x_values, y_values, title, x_label, y_label):
-        plt.figure(figsize=(10, 6))
-        plt.plot(x_values, y_values, marker='o')
-        plt.title(title)
-        plt.xlabel(x_label)
-        plt.ylabel(y_label)
-        plt.grid(True)
-        plt.show()
+    # def plot_chart(self, x_values, y_values, title, x_label, y_label):
+    #     plt.figure(figsize=(10, 6))
+    #     plt.plot(x_values, y_values, marker='o')
+    #     plt.title(title)
+    #     plt.xlabel(x_label)
+    #     plt.ylabel(y_label)
+    #     plt.grid(True)
+    #     plt.show()
 
-    def generate_charts(self):
-        delays = []
-        waiting_times = []
-        n_values = range(5, 30, 5)
+    # def generate_charts(self):
+    #     delays = []
+    #     waiting_times = []
+    #     n_values = range(5, 30, 5)
         
-        for n in n_values:
-            sample_jobs = self.jobs[:n]
-            ordered_jobs = self.johnsons_algorithm()
-            _, end_times = self.calculate_makespan(ordered_jobs)
+    #     for n in n_values:
+    #         sample_jobs = self.jobs[:n]
+    #         ordered_jobs = self.johnsons_algorithm()
+    #         _, end_times = self.calculate_makespan(ordered_jobs)
             
-            avg_delay = self.calculate_average_delay(end_times, ordered_jobs)
-            avg_waiting_time = self.calculate_average_waiting_time(end_times)
+    #         avg_delay = self.calculate_average_delay(end_times, ordered_jobs)
+    #         avg_waiting_time = self.calculate_average_waiting_time(end_times)
             
-            delays.append(avg_delay)
-            waiting_times.append(avg_waiting_time)
+    #         delays.append(avg_delay)
+    #         waiting_times.append(avg_waiting_time)
         
-        self.plot_chart(n_values, delays, "Average Delay with varying n", "Number of Jobs (n)", "Average Delay")
-        self.plot_chart(n_values, waiting_times, "Average Waiting Time with varying n", "Number of Jobs (n)", "Average Waiting Time")
+    #     self.plot_chart(n_values, delays, "Average Delay with varying n", "Number of Jobs (n)", "Average Delay")
+    #     self.plot_chart(n_values, waiting_times, "Average Waiting Time with varying n", "Number of Jobs (n)", "Average Waiting Time")
 
 # Example usage
-johnson = JohnsonAlgorithm('task_samples.csv')
-johnson.generate_charts()
+# johnson = JohnsonAlgorithm('task_samples.csv')
+# johnson.generate_charts()
