@@ -3,27 +3,28 @@ import numpy as np
 class Scheduler:
 
     def calculate_makespan(self, jobs):
-        end_times = np.zeros((len(jobs), self.num_machines))
-        
-        for i, job in enumerate(jobs):
-            for j in range(1, self.num_machines + 1):
-                if i == 0 and j == 1:
-                    end_times[i][j-1] = job[j]
-                elif i == 0:
-                    end_times[i][j-1] = end_times[i][j-2] + job[j]
-                elif j == 1:
-                    end_times[i][j-1] = end_times[i-1][j-1] + job[j]
-                else:
-                    end_times[i][j-1] = max(end_times[i-1][j-1], end_times[i][j-2]) + job[j]
-        
-        return end_times[-1][-1], end_times
-    
+        # Number of jobs
+        num_jobs = len(jobs)
+        # Number of machines
+        num_machines = self.num_machines
+
+        # Initialize a table to store the completion time of each job on each machine
+        completion_times = np.zeros((num_jobs + 1, num_machines + 1)) # [[0] * (num_machines + 1) for _ in range(num_jobs + 1)]
+
+        # Iterate through each job and machine to fill in the completion times
+        for i in range(1, num_jobs + 1):
+            _, *times = jobs[i - 1]
+            for j in range(1, num_machines + 1):
+                completion_times[i][j] = max(completion_times[i-1][j], completion_times[i][j-1]) + times[j-1]
+
+        # The makespan is the completion time of the last job on the last machine
+        makespan = completion_times[num_jobs][num_machines]
+        return makespan, completion_times
+
+
     def calculate_average_delay(self, end_times, jobs):
-        total_delay = 0
-        for i, job in enumerate(jobs):
-            total_delay += end_times[i][-1] - sum(job[1:self.num_machines+1])
-        return total_delay / len(jobs)
+        return np.mean([end_times[i][-1] - sum(jobs[i][1:]) for i in range(len(jobs))])
+
 
     def calculate_average_waiting_time(self, end_times):
-        waiting_times = end_times[:, :-1] - end_times[:, 1:]
-        return np.mean(waiting_times)
+        return np.mean(end_times[:, 1:] - end_times[:, :-1])
