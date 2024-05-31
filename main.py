@@ -18,7 +18,8 @@ def main():
     # Delay2 & Waiting2 --> refers to m constant and n variable
     data = {
         "Johnson": {"AvgWaitingTime1": [], "Waiting1": [], "AvgWaitingTime2": [], "Waiting2": [], "ResponseTime1": [],
-                    "ResponseTime2": [], "AvgResponseTime1": [], "AvgResponseTime2": []},
+                    "ResponseTime2": [], "AvgResponseTime1": [], "AvgResponseTime2": [], 'Makespan1': [],
+                    "Makespan2": []},
         "Genetic": {"Delay1": [], "Waiting1": [], "Delay2": [], "Waiting2": [], "ResponseTime1": [],
                     "ResponseTime2": [], "AvgResponseTime1": [], "AvgResponseTime2": []}
     }
@@ -29,6 +30,7 @@ def main():
         sub_table = [row[:m + 1] for row in tasks]
         j = johnson.JohnsonAlgorithm(sub_table)
         ordered_jobs = j.johnsons_algorithm()
+        print(ordered_jobs)
         makespan, end_times, start_times = j.calculate_makespan(ordered_jobs)
         waiting_times = j.calculate_waiting_time(ordered_jobs, start_times)
         avg_waiting_time = j.calculate_average_waiting_time(waiting_times)
@@ -39,7 +41,7 @@ def main():
         data["Johnson"]["Waiting1"].append(waiting_times)
         data["Johnson"]["ResponseTime1"].append(response_times)
         data["Johnson"]["AvgResponseTime1"].append(avg_response_time)
-
+        data["Johnson"]["Makespan1"].append(makespan)
 
         # continue
         # g = genetic.GeneticAlgorithm(sub_table)
@@ -65,9 +67,7 @@ def main():
     counter = 1
     for n in range(2, number_of_jobs + 1):
         counter += 1
-        print(counter)
         sub_table = tasks[:n]
-        print(sub_table)
         # Johnson Algorithm
         j = johnson.JohnsonAlgorithm(sub_table)
         ordered_jobs = j.johnsons_algorithm()
@@ -82,6 +82,7 @@ def main():
         data["Johnson"]["Waiting2"].append(waiting_times)
         data["Johnson"]["ResponseTime2"].append(response_times)
         data["Johnson"]["AvgResponseTime2"].append(avg_response_time)
+        data["Johnson"]["Makespan2"].append(makespan)
 
         # continue
         # # Genetic Algorithm
