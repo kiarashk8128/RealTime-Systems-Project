@@ -169,6 +169,7 @@ def main():
 
     pprint(data)
     helper_functions.plot_results(data, number_of_machines, number_of_jobs)
+    helper_functions.plot_resultts(data, number_of_machines, number_of_jobs)
 
 if __name__ == "__main__":
     main()
