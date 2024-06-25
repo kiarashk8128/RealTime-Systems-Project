@@ -6,7 +6,7 @@ import random
 from collections import deque
 
 
-class FlowshopEnvironment:
+class JobshopEnvironment:
     def __init__(self, tasks, num_machines):
         self.tasks = tasks
         self.num_machines = num_machines

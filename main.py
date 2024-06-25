@@ -3,12 +3,12 @@ from algorithms import johnson
 import pandas as pd
 import numpy as np
 from utils import helper_functions
-from dqn import DQNAgent, FlowshopEnvironment, train_dqn
+from dqn import DQNAgent, JobshopEnvironment, train_dqn
 import random
 from pprint import pprint
 
-number_of_machines = 4
-number_of_jobs = 20
+number_of_machines = 2
+number_of_jobs = 4
 
 
 def main():
@@ -66,7 +66,7 @@ def main():
         data["Genetic"]["Makespan1"].append(makespan)
 
         # DQN Algorithm
-        env = FlowshopEnvironment(sub_table, m)
+        env = JobshopEnvironment(sub_table, m)
         agent = DQNAgent(state_size=env.state_size, action_size=env.action_size)
         train_dqn(agent, env, episodes=100)  # Adjust episodes as needed
 
@@ -136,7 +136,7 @@ def main():
         data["Genetic"]["AvgResponseTime2"].append(avg_response_time)
         data["Genetic"]["Makespan2"].append(makespan)
         # DQN Algorithm
-        env = FlowshopEnvironment(sub_table, number_of_machines)
+        env = JobshopEnvironment(sub_table, number_of_machines)
         agent = DQNAgent(state_size=env.state_size, action_size=env.action_size)
         train_dqn(agent, env, episodes=100)  # Adjust episodes as needed
 
