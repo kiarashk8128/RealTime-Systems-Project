@@ -22,7 +22,7 @@ def main():
                     "ResponseTime2": [], "AvgResponseTime1": [], "AvgResponseTime2": [], 'Makespan1': [],
                     "Makespan2": []},
         "DQN": {"AvgWaitingTime1": [], "Waiting1": [], "AvgWaitingTime2": [], "Waiting2": [], "ResponseTime1": [],
-                "ResponseTime2": [], "AvgResponseTime1": [], "AvgResponseTime2": [], 'Makespan1': [], "Makespan2": []}
+                "ResponseTime2": [], "AvgResponseTime1": [], "AvgResponseTime2": [], 'Makespan1': [], "Makespan2": []},
         "Genetic": {"AvgWaitingTime1": [], "Waiting1": [], "AvgWaitingTime2": [], "Waiting2": [], "ResponseTime1": [],
                     "ResponseTime2": [], "AvgResponseTime1": [], "AvgResponseTime2": [], 'Makespan1': [],
                     "Makespan2": []}
