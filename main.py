@@ -21,15 +21,17 @@ def main():
         "Johnson": {"AvgWaitingTime1": [], "Waiting1": [], "AvgWaitingTime2": [], "Waiting2": [], "ResponseTime1": [],
                     "ResponseTime2": [], "AvgResponseTime1": [], "AvgResponseTime2": [], 'Makespan1': [],
                     "Makespan2": []},
-        "Genetic": {"Delay1": [], "Waiting1": [], "Delay2": [], "Waiting2": [], "ResponseTime1": [],
-                    "ResponseTime2": [], "AvgResponseTime1": [], "AvgResponseTime2": []},
         "DQN": {"AvgWaitingTime1": [], "Waiting1": [], "AvgWaitingTime2": [], "Waiting2": [], "ResponseTime1": [],
                 "ResponseTime2": [], "AvgResponseTime1": [], "AvgResponseTime2": [], 'Makespan1': [], "Makespan2": []}
+        "Genetic": {"AvgWaitingTime1": [], "Waiting1": [], "AvgWaitingTime2": [], "Waiting2": [], "ResponseTime1": [],
+                    "ResponseTime2": [], "AvgResponseTime1": [], "AvgResponseTime2": [], 'Makespan1': [],
+                    "Makespan2": []}
     }
 
     # n constant , m variable
     list1 = []
     for m in range(2, number_of_machines + 1):
+        # Johnson
         sub_table = [row[:m + 1] for row in tasks]
         j = johnson.JohnsonAlgorithm(sub_table)
         ordered_jobs = j.johnsons_algorithm()
@@ -45,6 +47,23 @@ def main():
         data["Johnson"]["ResponseTime1"].append(response_times)
         data["Johnson"]["AvgResponseTime1"].append(avg_response_time)
         data["Johnson"]["Makespan1"].append(makespan)
+
+        #Genetic
+        g = genetic.GeneticAlgorithm(sub_table)
+        best_sequence = g.run()
+        print("#######################################")
+        print(best_sequence)
+        makespan, end_times, start_times = g.calculate_makespan(best_sequence)
+        waiting_times = g.calculate_waiting_time(best_sequence, start_times)
+        avg_waiting_time = g.calculate_average_waiting_time(waiting_times)
+        response_times = g.calculate_response_time(best_sequence, end_times)
+        avg_response_time = g.calculate_average_response_time(response_times)
+
+        data["Genetic"]["AvgWaitingTime1"].append(avg_waiting_time)
+        data["Genetic"]["Waiting1"].append(waiting_times)
+        data["Genetic"]["ResponseTime1"].append(response_times)
+        data["Genetic"]["AvgResponseTime1"].append(avg_response_time)
+        data["Genetic"]["Makespan1"].append(makespan)
 
         # DQN Algorithm
         env = FlowshopEnvironment(sub_table, m)
@@ -79,7 +98,6 @@ def main():
         data["DQN"]["Makespan1"].append(dqn_makespan)
 
     pprint(data)
-
     # m constant , n variable
     list2 = []
     counter = 1
@@ -102,6 +120,21 @@ def main():
         data["Johnson"]["AvgResponseTime2"].append(avg_response_time)
         data["Johnson"]["Makespan2"].append(makespan)
 
+        # Genetic
+        g = genetic.GeneticAlgorithm(sub_table)
+        ordered_jobs = g.run()
+        makespan, end_times, start_times = g.calculate_makespan(ordered_jobs)
+
+        waiting_times = g.calculate_waiting_time(ordered_jobs, start_times)
+        avg_waiting_time = g.calculate_average_waiting_time(waiting_times)
+        response_times = g.calculate_response_time(ordered_jobs, end_times)
+        avg_response_time = g.calculate_average_response_time(response_times)
+
+        data["Genetic"]["AvgWaitingTime2"].append(avg_waiting_time)
+        data["Genetic"]["Waiting2"].append(waiting_times)
+        data["Genetic"]["ResponseTime2"].append(response_times)
+        data["Genetic"]["AvgResponseTime2"].append(avg_response_time)
+        data["Genetic"]["Makespan2"].append(makespan)
         # DQN Algorithm
         env = FlowshopEnvironment(sub_table, number_of_machines)
         agent = DQNAgent(state_size=env.state_size, action_size=env.action_size)
