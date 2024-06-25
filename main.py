@@ -3,11 +3,12 @@ from algorithms import johnson
 import pandas as pd
 import numpy as np
 from utils import helper_functions
+from dqn import DQNAgent, FlowshopEnvironment, train_dqn
 import random
 from pprint import pprint
 
-number_of_machines = 2
-number_of_jobs = 5
+number_of_machines = 4
+number_of_jobs = 20
 
 
 def main():
@@ -21,7 +22,9 @@ def main():
                     "ResponseTime2": [], "AvgResponseTime1": [], "AvgResponseTime2": [], 'Makespan1': [],
                     "Makespan2": []},
         "Genetic": {"Delay1": [], "Waiting1": [], "Delay2": [], "Waiting2": [], "ResponseTime1": [],
-                    "ResponseTime2": [], "AvgResponseTime1": [], "AvgResponseTime2": []}
+                    "ResponseTime2": [], "AvgResponseTime1": [], "AvgResponseTime2": []},
+        "DQN": {"AvgWaitingTime1": [], "Waiting1": [], "AvgWaitingTime2": [], "Waiting2": [], "ResponseTime1": [],
+                "ResponseTime2": [], "AvgResponseTime1": [], "AvgResponseTime2": [], 'Makespan1': [], "Makespan2": []}
     }
 
     # n constant , m variable
@@ -43,22 +46,37 @@ def main():
         data["Johnson"]["AvgResponseTime1"].append(avg_response_time)
         data["Johnson"]["Makespan1"].append(makespan)
 
-        # continue
-        # g = genetic.GeneticAlgorithm(sub_table)
-        # best_sequence = g.run()
-        # makespan, end_times, start_times = g.calculate_makespan(best_sequence)
-        #
-        # avg_delay = g.calculate_average_delay(end_times, best_sequence)
-        # avg_waiting_time = g.calculate_average_waiting_time(end_times)
-        # response_times = g.calculate_response_time(best_sequence, end_times)
-        # avg_response_time = g.calculate_average_response_time(response_times)
-        #
-        # data["Genetic"]["Delay1"].append(avg_delay)
-        # data["Genetic"]["Waiting1"].append(avg_waiting_time)
-        # data["Genetic"]["ResponseTime1"].append(response_times)
-        # data["Genetic"]["AvgResponseTime1"].append(avg_response_time)
-        #
-        # list1.append([j, g])
+        # DQN Algorithm
+        env = FlowshopEnvironment(sub_table, m)
+        agent = DQNAgent(state_size=env.state_size, action_size=env.action_size)
+        train_dqn(agent, env, episodes=100)  # Adjust episodes as needed
+
+        # Evaluate the trained DQN agent
+        state = env.reset()
+        total_reward = 0
+        while True:
+            action = agent.act(state)
+            next_state, reward, done, _ = env.step(action)
+            state = next_state
+            total_reward += reward
+            if done:
+                break
+
+        # Assuming reward is negative of makespan
+        dqn_makespan = -total_reward
+        dqn_end_times = env.get_end_times()
+        dqn_start_times = env.get_start_times()
+
+        dqn_waiting_times = env.calculate_waiting_time(dqn_start_times)
+        dqn_avg_waiting_time = np.mean(dqn_waiting_times)
+        dqn_response_times = env.calculate_response_time(dqn_end_times)
+        dqn_avg_response_time = np.mean(dqn_response_times)
+
+        data["DQN"]["AvgWaitingTime1"].append(dqn_avg_waiting_time)
+        data["DQN"]["Waiting1"].append(dqn_waiting_times)
+        data["DQN"]["ResponseTime1"].append(dqn_response_times)
+        data["DQN"]["AvgResponseTime1"].append(dqn_avg_response_time)
+        data["DQN"]["Makespan1"].append(dqn_makespan)
 
     pprint(data)
 
@@ -84,23 +102,37 @@ def main():
         data["Johnson"]["AvgResponseTime2"].append(avg_response_time)
         data["Johnson"]["Makespan2"].append(makespan)
 
-        # continue
-        # # Genetic Algorithm
-        # g = genetic.GeneticAlgorithm(sub_table)
-        # best_sequence = g.run()
-        # makespan, end_times, start_times = g.calculate_makespan(best_sequence)
-        #
-        # avg_delay = g.calculate_average_delay(end_times, best_sequence)
-        # avg_waiting_time = g.calculate_average_waiting_time(end_times)
-        # response_times = g.calculate_response_time(best_sequence, end_times)
-        # avg_response_time = g.calculate_average_response_time(response_times)
-        #
-        # data["Genetic"]["Delay2"].append(avg_delay)
-        # data["Genetic"]["Waiting2"].append(avg_waiting_time)
-        # data["Genetic"]["ResponseTime2"].append(response_times)
-        # data["Genetic"]["AvgResponseTime2"].append(avg_response_time)
-        #
-        # list2.append([j, g])
+        # DQN Algorithm
+        env = FlowshopEnvironment(sub_table, number_of_machines)
+        agent = DQNAgent(state_size=env.state_size, action_size=env.action_size)
+        train_dqn(agent, env, episodes=100)  # Adjust episodes as needed
+
+        # Evaluate the trained DQN agent
+        state = env.reset()
+        total_reward = 0
+        while True:
+            action = agent.act(state)
+            next_state, reward, done, _ = env.step(action)
+            state = next_state
+            total_reward += reward
+            if done:
+                break
+
+        # Assuming reward is negative of makespan
+        dqn_makespan = -total_reward
+        dqn_end_times = env.get_end_times()
+        dqn_start_times = env.get_start_times()
+
+        dqn_waiting_times = env.calculate_waiting_time(dqn_start_times)
+        dqn_avg_waiting_time = np.mean(dqn_waiting_times)
+        dqn_response_times = env.calculate_response_time(dqn_end_times)
+        dqn_avg_response_time = np.mean(dqn_response_times)
+
+        data["DQN"]["AvgWaitingTime2"].append(dqn_avg_waiting_time)
+        data["DQN"]["Waiting2"].append(dqn_waiting_times)
+        data["DQN"]["ResponseTime2"].append(dqn_response_times)
+        data["DQN"]["AvgResponseTime2"].append(dqn_avg_response_time)
+        data["DQN"]["Makespan2"].append(dqn_makespan)
 
     pprint(data)
     helper_functions.plot_results(data, number_of_machines, number_of_jobs)
