@@ -6,8 +6,8 @@ from utils import helper_functions
 import random
 from pprint import pprint
 
-number_of_machines = 2
-number_of_jobs = 5
+number_of_machines = 4
+number_of_jobs = 6
 
 
 def main():
@@ -20,13 +20,15 @@ def main():
         "Johnson": {"AvgWaitingTime1": [], "Waiting1": [], "AvgWaitingTime2": [], "Waiting2": [], "ResponseTime1": [],
                     "ResponseTime2": [], "AvgResponseTime1": [], "AvgResponseTime2": [], 'Makespan1': [],
                     "Makespan2": []},
-        "Genetic": {"Delay1": [], "Waiting1": [], "Delay2": [], "Waiting2": [], "ResponseTime1": [],
-                    "ResponseTime2": [], "AvgResponseTime1": [], "AvgResponseTime2": []}
+        "Genetic": {"AvgWaitingTime1": [], "Waiting1": [], "AvgWaitingTime2": [], "Waiting2": [], "ResponseTime1": [],
+                    "ResponseTime2": [], "AvgResponseTime1": [], "AvgResponseTime2": [], 'Makespan1': [],
+                    "Makespan2": []}
     }
 
     # n constant , m variable
     list1 = []
     for m in range(2, number_of_machines + 1):
+        # Johnson
         sub_table = [row[:m + 1] for row in tasks]
         j = johnson.JohnsonAlgorithm(sub_table)
         ordered_jobs = j.johnsons_algorithm()
@@ -43,25 +45,25 @@ def main():
         data["Johnson"]["AvgResponseTime1"].append(avg_response_time)
         data["Johnson"]["Makespan1"].append(makespan)
 
-        # continue
-        # g = genetic.GeneticAlgorithm(sub_table)
-        # best_sequence = g.run()
-        # makespan, end_times, start_times = g.calculate_makespan(best_sequence)
-        #
-        # avg_delay = g.calculate_average_delay(end_times, best_sequence)
-        # avg_waiting_time = g.calculate_average_waiting_time(end_times)
-        # response_times = g.calculate_response_time(best_sequence, end_times)
-        # avg_response_time = g.calculate_average_response_time(response_times)
-        #
-        # data["Genetic"]["Delay1"].append(avg_delay)
-        # data["Genetic"]["Waiting1"].append(avg_waiting_time)
-        # data["Genetic"]["ResponseTime1"].append(response_times)
-        # data["Genetic"]["AvgResponseTime1"].append(avg_response_time)
-        #
-        # list1.append([j, g])
+        #Genetic
+        g = genetic.GeneticAlgorithm(sub_table)
+        best_sequence = g.run()
+        print("#######################################")
+        print(best_sequence)
+        makespan, end_times, start_times = g.calculate_makespan(best_sequence)
+        waiting_times = g.calculate_waiting_time(best_sequence, start_times)
+        avg_waiting_time = g.calculate_average_waiting_time(waiting_times)
+        response_times = g.calculate_response_time(best_sequence, end_times)
+        avg_response_time = g.calculate_average_response_time(response_times)
+
+        data["Genetic"]["AvgWaitingTime1"].append(avg_waiting_time)
+        data["Genetic"]["Waiting1"].append(waiting_times)
+        data["Genetic"]["ResponseTime1"].append(response_times)
+        data["Genetic"]["AvgResponseTime1"].append(avg_response_time)
+        data["Genetic"]["Makespan1"].append(makespan)
+        
 
     pprint(data)
-
     # m constant , n variable
     list2 = []
     counter = 1
@@ -84,23 +86,21 @@ def main():
         data["Johnson"]["AvgResponseTime2"].append(avg_response_time)
         data["Johnson"]["Makespan2"].append(makespan)
 
-        # continue
-        # # Genetic Algorithm
-        # g = genetic.GeneticAlgorithm(sub_table)
-        # best_sequence = g.run()
-        # makespan, end_times, start_times = g.calculate_makespan(best_sequence)
-        #
-        # avg_delay = g.calculate_average_delay(end_times, best_sequence)
-        # avg_waiting_time = g.calculate_average_waiting_time(end_times)
-        # response_times = g.calculate_response_time(best_sequence, end_times)
-        # avg_response_time = g.calculate_average_response_time(response_times)
-        #
-        # data["Genetic"]["Delay2"].append(avg_delay)
-        # data["Genetic"]["Waiting2"].append(avg_waiting_time)
-        # data["Genetic"]["ResponseTime2"].append(response_times)
-        # data["Genetic"]["AvgResponseTime2"].append(avg_response_time)
-        #
-        # list2.append([j, g])
+        # Genetic
+        g = genetic.GeneticAlgorithm(sub_table)
+        ordered_jobs = g.run()
+        makespan, end_times, start_times = g.calculate_makespan(ordered_jobs)
+
+        waiting_times = g.calculate_waiting_time(ordered_jobs, start_times)
+        avg_waiting_time = g.calculate_average_waiting_time(waiting_times)
+        response_times = g.calculate_response_time(ordered_jobs, end_times)
+        avg_response_time = g.calculate_average_response_time(response_times)
+
+        data["Genetic"]["AvgWaitingTime2"].append(avg_waiting_time)
+        data["Genetic"]["Waiting2"].append(waiting_times)
+        data["Genetic"]["ResponseTime2"].append(response_times)
+        data["Genetic"]["AvgResponseTime2"].append(avg_response_time)
+        data["Genetic"]["Makespan2"].append(makespan)
 
     pprint(data)
     helper_functions.plot_results(data, number_of_machines, number_of_jobs)
