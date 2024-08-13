@@ -7,9 +7,13 @@ from collections import deque
 
 
 class JobshopEnvironment:
-    def __init__(self, tasks, num_machines):
+    def __init__(self, tasks, num_machines, alpha, beta, W1, W2):
         self.tasks = tasks
         self.num_machines = num_machines
+        self.alpha = alpha
+        self.beta = beta
+        self.W1 = W1
+        self.W2 = W2
         self.state_size = len(tasks) * num_machines
         self.action_size = len(tasks)
         self.reset()
@@ -22,6 +26,15 @@ class JobshopEnvironment:
         self.machines_free_time = [0] * self.num_machines
         self.task_start_times = np.zeros((len(self.tasks), self.num_machines))
         self.task_end_times = np.zeros((len(self.tasks), self.num_machines))
+
+        # Calculate deadlines and base energy consumption
+        self.deadlines = [self.alpha * sum(task[1:]) for task in self.tasks]
+        self.base_energies = [np.random.uniform(10, 20) for _ in range(len(self.tasks))]
+
+        # Metrics to track
+        self.missed_deadlines = 0
+        self.total_energy_consumption = 0
+
         return self.state
 
     def step(self, action):
@@ -41,12 +54,26 @@ class JobshopEnvironment:
 
         self.task_end_times[action] = self.machines_free_time
 
-        self.state = self.get_state()
-        reward = -self.time_elapsed
+        # Calculate makespan
+        makespan = self.time_elapsed
+
+        # Calculate energy consumption
+        time_missed = max(makespan - self.deadlines[action], 0)
+        energy_consumption = self.base_energies[action] + (time_missed * self.beta)
+        self.total_energy_consumption += energy_consumption
+
+        # Track missed deadlines
+        if time_missed > 0:
+            self.missed_deadlines += 1
+
+        # Calculate reward based on weighted makespan and energy consumption
+        reward = -(self.W1 * makespan + self.W2 * energy_consumption)
+
         done = self.current_task == len(self.tasks)
         if done:
-            reward += 1000
+            reward += 1000  # Optional bonus for completing all tasks
 
+        self.state = self.get_state()
         return self.state, reward, done, {}
 
     def get_state(self):
@@ -71,6 +98,9 @@ class JobshopEnvironment:
         num_jobs = end_times.shape[0]
         response_times = [end_times[i][-1] for i in range(num_jobs)]
         return response_times
+
+    def get_metrics(self):
+        return self.missed_deadlines, self.total_energy_consumption
 
 
 # Define the Q-Network
