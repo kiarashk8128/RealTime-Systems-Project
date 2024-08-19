@@ -8,34 +8,45 @@ from dqn import DQNAgent, JobshopEnvironment, train_dqn
 import random
 from pprint import pprint
 
-number_of_machines = 6
-number_of_jobs = 15
 
-alpha = 4  # Deadline multiplier
+number_of_machines = 5
+number_of_jobs = 12
+
+
+
+alpha = 1.5  # Deadline multiplier
 beta = 0.1  # Penalty multiplier for energy consumption
-W1 = 1.2
-W2 = 3.1
+W1 = 4.9
+W2 = 8.2
 
 
 def main():
-    tasks = helper_functions.generate_samlpe_tasks(number_of_jobs, number_of_machines)
-    deadlines = [alpha * sum(task[1:]) for task in tasks]
-    base_energy = [np.random.uniform(10, 20) for _ in range(number_of_jobs)]
-    print(tasks)
+    # number_of_jobs and number_of_machines would be defined earlier in your script
+    # at below, you can see the complete random code for task generating scenario, if you need it, uncomment it.
+    # tasks = helper_functions.generate_samlpe_tasks(number_of_jobs, number_of_machines)
+    # deadlines = [alpha * sum(task[1:]) for task in tasks]
+    # base_energy = [np.random.uniform(10, 20) for _ in range(number_of_jobs)]
+    tasks, base_energy, selected_operations = helper_functions.generate_real_data_sample_tasks(number_of_jobs,
+                                                                                               number_of_machines)
 
+    # Extract task times for deadlines
+    deadlines = [alpha * sum(task[1:]) for task in tasks]  # No change needed here
+
+    print("Selected operations distribution:")
+    pprint(selected_operations)
     data = {
-        "Johnson": {"AvgWaitingTime1": [], "Waiting1": [], "AvgWaitingTime2": [], "Waiting2": [], "ResponseTime1": [],
-                    "ResponseTime2": [], "AvgResponseTime1": [], "AvgResponseTime2": [], 'Makespan1': [],
-                    "Makespan2": [], "MissedDeadlines1": [], "MissedDeadlines2": [], "TotalEnergy1": [],
-                    "TotalEnergy2": []},
-        "DQN": {"AvgWaitingTime1": [], "Waiting1": [], "AvgWaitingTime2": [], "Waiting2": [], "ResponseTime1": [],
-                "ResponseTime2": [], "AvgResponseTime1": [], "AvgResponseTime2": [], 'Makespan1': [], "Makespan2": [],
-                "MissedDeadlines1": [], "MissedDeadlines2": [], "TotalEnergy1": [], "TotalEnergy2": []},
-        "Genetic": {"AvgWaitingTime1": [], "Waiting1": [], "AvgWaitingTime2": [], "Waiting2": [], "ResponseTime1": [],
-                    "ResponseTime2": [], "AvgResponseTime1": [], "AvgResponseTime2": [], 'Makespan1': [],
-                    "Makespan2": [], "MissedDeadlines1": [], "MissedDeadlines2": [], "TotalEnergy1": [],
-                    "TotalEnergy2": []}
-    }
+            "Johnson": {"AvgWaitingTime1": [], "Waiting1": [], "AvgWaitingTime2": [], "Waiting2": [], "ResponseTime1": [],
+                        "ResponseTime2": [], "AvgResponseTime1": [], "AvgResponseTime2": [], 'Makespan1': [],
+                        "Makespan2": [], "MissedDeadlines1": [], "MissedDeadlines2": [], "TotalEnergy1": [],
+                        "TotalEnergy2": []},
+            "DQN": {"AvgWaitingTime1": [], "Waiting1": [], "AvgWaitingTime2": [], "Waiting2": [], "ResponseTime1": [],
+                    "ResponseTime2": [], "AvgResponseTime1": [], "AvgResponseTime2": [], 'Makespan1': [], "Makespan2": [],
+                    "MissedDeadlines1": [], "MissedDeadlines2": [], "TotalEnergy1": [], "TotalEnergy2": []},
+            "Genetic": {"AvgWaitingTime1": [], "Waiting1": [], "AvgWaitingTime2": [], "Waiting2": [], "ResponseTime1": [],
+                        "ResponseTime2": [], "AvgResponseTime1": [], "AvgResponseTime2": [], 'Makespan1': [],
+                        "Makespan2": [], "MissedDeadlines1": [], "MissedDeadlines2": [], "TotalEnergy1": [],
+                        "TotalEnergy2": []}
+        }
 
     # n constant , m variable
     for m in range(2, number_of_machines + 1):
@@ -86,7 +97,10 @@ def main():
         # DQN Algorithm
         env = JobshopEnvironment(sub_table, m, alpha, beta, W1, W2)
         agent = DQNAgent(state_size=env.state_size, action_size=env.action_size)
-        train_dqn(agent, env, episodes=100)  # Adjust episodes as needed
+
+        # Pre-training using Johnson's algorithm
+        train_dqn(agent, env, ordered_jobs, episodes=100, batch_size=32,
+                  pretrain_steps=50)  # Include pretrain_steps
 
         # Evaluate the trained DQN agent
         state = env.reset()
@@ -99,9 +113,7 @@ def main():
             if done:
                 break
 
-        dqn_makespan = -total_reward
-        dqn_end_times = env.get_end_times()
-        dqn_start_times = env.get_start_times()
+        dqn_makespan, dqn_end_times, dqn_start_times = j.calculate_makespan(env.schedule)
 
         dqn_waiting_times = env.calculate_waiting_time(dqn_start_times)
         dqn_avg_waiting_time = np.mean(dqn_waiting_times)
@@ -168,10 +180,12 @@ def main():
         data["Genetic"]["MissedDeadlines2"].append(missed_deadlines)
         data["Genetic"]["TotalEnergy2"].append(total_energy)
 
-        # DQN Algorithm
         env = JobshopEnvironment(sub_table, number_of_machines, alpha, beta, W1, W2)
         agent = DQNAgent(state_size=env.state_size, action_size=env.action_size)
-        train_dqn(agent, env, episodes=100)  # Adjust episodes as needed
+
+        # Pre-training using Johnson's algorithm
+        train_dqn(agent, env, ordered_jobs, episodes=100, batch_size=32,
+                  pretrain_steps=50)  # Include pretrain_steps
 
         # Evaluate the trained DQN agent
         state = env.reset()
@@ -184,9 +198,8 @@ def main():
             if done:
                 break
 
-        dqn_makespan = -total_reward
-        dqn_end_times = env.get_end_times()
-        dqn_start_times = env.get_start_times()
+        dqn_makespan, dqn_end_times, dqn_start_times = j.calculate_makespan(env.schedule)
+
 
         dqn_waiting_times = env.calculate_waiting_time(dqn_start_times)
         dqn_avg_waiting_time = np.mean(dqn_waiting_times)
