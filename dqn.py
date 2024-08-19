@@ -94,7 +94,7 @@ class JobshopEnvironment:
 
     def calculate_waiting_time(self, start_times):
         num_jobs = start_times.shape[0]
-        waiting_times = [start_times[i][0] for i in range(num_jobs)]
+        waiting_times = [start_times[i][1] for i in range(num_jobs)]
         return waiting_times
 
     def calculate_response_time(self, end_times):
